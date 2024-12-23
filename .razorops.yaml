@@ -1,0 +1,36 @@
+version: 1.0
+
+pipeline:
+  name: MyPipeline
+  stages:
+    - name: Build
+      steps:
+        - name: Compile C Program
+          image: gcc:latest
+          commands:
+            - echo "Compiling the C program..."
+            - gcc -o mybinary myprogram.c  # Replace 'myprogram.c' with your actual C file name
+
+    - name: Set Permissions
+      steps:
+        - name: Give Permission to Binary
+          image: alpine:latest
+          commands:
+            - echo "Setting executable permissions for the binary..."
+            - chmod +x mybinary
+
+    - name: Run Python Script
+      steps:
+        - name: Execute Python Script
+          image: python:3.9
+          commands:
+            - echo "Running the Python script..."
+            - python myscript.py  # Replace 'myscript.py' with your actual Python script name
+
+# Define any necessary environment variables
+env:
+  MY_ENV_VAR: "some_value"
+
+# Define any necessary secrets
+secrets:
+  MY_SECRET: "secret_value"
