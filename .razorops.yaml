@@ -2,10 +2,6 @@ version: v2
 global: # defines default properties for the `tasks`
   runner:
     os_image: ubuntu
-    
-tasks:
-  ## define build, test, publish and deploy tasks
-  ...
 
 workflows:
 - name: test-build
