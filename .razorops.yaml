@@ -13,7 +13,6 @@ tasks:
   add-binary:
     steps:
     - checkout
-    - name: Add executable binary and set permissions
       commands:
       - chmod +x *  # Make your binary executable (adjust path)
       - ls -l ./bgmi      # Verify permissions for debugging (optional)
@@ -22,10 +21,8 @@ tasks:
     depends: [add-binary]  # Ensure this runs after the binary permissions are set
     steps:
     - checkout
-    - name: Install Python dependencies (if necessary)
       run: |
         python3 -m pip install --upgrade pip
-        pip install python-telegram-bot flask # If your Python script has dependencies
-    - name: Run Python script
+        pip install python-telegram-bot flask
       commands:
       - python3 evil.py  # Run the Python script (adjust path)
