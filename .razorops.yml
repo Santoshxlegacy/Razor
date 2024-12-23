@@ -1,0 +1,34 @@
+version: v2
+global: # defines default properties for the `tasks`
+  runner:
+    os_image: ubuntu
+    
+tasks:
+  ## define build, test, publish and deploy tasks
+  ...
+
+workflows:
+- name: test-build
+  tasks:
+  - build
+  - test
+  - publish:
+      depends: [build, test]
+
+- name: test-build-deploy
+  when: branch == "master"
+  tasks:
+  - build
+  - test
+  - publish:
+      depends: [build, test]
+  - deploy:
+      depends: [publish]
+  
+     
+           
+trigger:
+  schedules:
+  - name: daily
+    cron: "15 12 * * *"
+    branch: main
