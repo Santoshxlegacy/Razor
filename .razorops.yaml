@@ -1,53 +1,42 @@
 version: 2
-name: MyProjectPipeline
-stages:
-  - name: Build
-    description: "Build the application"
-    run:
-      image: "ubuntu:22.04"
-      commands:
-        - echo "Updating system..."
-        - apt-get update
-        - echo "Installing dependencies..."
-        - apt-get install -y nodejs npm
-        - echo "Running tests..."
-        - npm test
+name: MyDAGPipeline
+spec:
+  templates:
+    - name: main
+      dag:
+        tasks:
+          - name: Build
+            template: build-template
+          - name: Deploy
+            template: deploy-template
+            dependencies:
+              - Build
+          - name: Notify
+            template: notify-template
+            dependencies:
+              - Deploy
+  templates:
+    - name: build-template
+      container:
+        image: "ubuntu:22.04"
+        commands:
+          - echo "Installing dependencies..."
+          - apt-get update
+          - apt-get install -y nodejs npm
+          - echo "Running tests..."
+          - npm test
 
-  - name: Deploy
-    description: "Deploy the application"
-    run:
-      image: "ubuntu:22.04"
-      commands:
-        - echo "Deploying to production..."
-        - npm run deploy
-    depends_on:
-      - Build
+    - name: deploy-template
+      container:
+        image: "ubuntu:22.04"
+        commands:
+          - echo "Deploying to production..."
+          - npm run deploy
 
-  - name: Notify
-    description: "Send notifications"
-    run:
-      image: "ubuntu:22.04"
-      commands:
-        - echo "Sending notifications..."
-        - apt-get install -y curl
-        - curl -X POST -d '{"text":"Deployment completed successfully!"}' https://example.com/notify
-    depends_on:
-      - Deploy
-
-environments:
-  - name: production
-    image: "ubuntu:22.04"
-    services:
-      - name: database
-        image: "mysql:5.7"
-        environment:
-          MYSQL_ROOT_PASSWORD: root_password
-    variables:
-      APP_ENV: production
-      DATABASE_URL: mysql://root:root_password@database:3306/mydb
-
-notifications:
-  on_failure:
-    - slack: "https://slack.com/api/chat.postMessage"
-  on_success:
-    - slack: "https://slack.com/api/chat.postMessage"
+    - name: notify-template
+      container:
+        image: "ubuntu:22.04"
+        commands:
+          - echo "Sending notifications..."
+          - apt-get install -y curl
+          - curl -X POST -d '{"text":"Deployment completed successfully!"}' https://example.com/notify
